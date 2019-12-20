@@ -17,6 +17,8 @@
   "keywords": ["WebRTC", "Signaling"],
   "author": "Roman Nix",
   "license": "MIT",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "bugs": {
     "url": "https://github.com/rnixik/webrtc-connection/issues"
   },
