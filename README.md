@@ -3,6 +3,12 @@
 Provides a tool to create pool of WebRTC peer connections 
 using different types of signaling.
 
+## Installation
+
+```
+npm install webrtc-connection
+```
+
 ## Signaling
 
 ### WebSockets signaling
