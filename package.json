@@ -5,14 +5,17 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "lint": "eslint --cache --ext .js,.jsx,.ts,.tsx src"
+    "lint": "eslint --cache --ext .js,.jsx,.ts,.tsx src",
+    "prepare" : "npm run build",
+    "prepublishOnly" : "npm run lint",
+    "preversion" : "npm run lint"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rnixik/webrtc-connection.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["WebRTC", "Signaling"],
+  "author": "Roman Nix",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/rnixik/webrtc-connection/issues"
