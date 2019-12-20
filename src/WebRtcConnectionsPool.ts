@@ -1,69 +1,69 @@
-import { SignalingInterface } from './SignalingInterface'
-import { WebRtcConnection } from './WebRtcConnection'
+import { SignalingInterface } from './SignalingInterface';
+import { WebRtcConnection } from './WebRtcConnection';
 
 export class WebRtcConnectionsPool {
-  private pool: WebRtcConnection[] = []
+  private pool: WebRtcConnection[] = [];
   private onOpenCallbacks: CallableFunction[] = [];
   private onMessageCallbacks: CallableFunction[] = [];
   private onCloseCallbacks: CallableFunction[] = [];
 
-  public connect (signaling: SignalingInterface): WebRtcConnection {
-    const connection = new WebRtcConnection(signaling)
+  public connect(signaling: SignalingInterface): WebRtcConnection {
+    const connection = new WebRtcConnection(signaling);
 
     connection.addOnOpenCallback(() => {
-      this.onOpen()
-    })
+      this.onOpen();
+    });
     connection.addOnMessageCallback((message: string) => {
-      this.onMessage(message)
-    })
+      this.onMessage(message);
+    });
     connection.addOnCloseCallback(() => {
-      this.onClose()
-    })
+      this.onClose();
+    });
 
-    this.pool.push(connection)
+    this.pool.push(connection);
 
-    return connection
+    return connection;
   }
 
-  public addOnOpenCallback (callback: () => void): void {
-    this.onOpenCallbacks.push(callback)
+  public addOnOpenCallback(callback: () => void): void {
+    this.onOpenCallbacks.push(callback);
   }
 
-  public addOnMessageCallback (callback: (message: string) => void): void {
-    this.onMessageCallbacks.push(callback)
+  public addOnMessageCallback(callback: (message: string) => void): void {
+    this.onMessageCallbacks.push(callback);
   }
 
-  public addOnCloseCallback (callback: () => void): void {
-    this.onCloseCallbacks.push(callback)
+  public addOnCloseCallback(callback: () => void): void {
+    this.onCloseCallbacks.push(callback);
   }
 
-  public sendMessage (message: string): void {
-    for (let connection of this.pool) {
-      connection.sendMessage(message)
+  public sendMessage(message: string): void {
+    for (const connection of this.pool) {
+      connection.sendMessage(message);
     }
   }
 
-  public close (): void {
-    for (let connection of this.pool) {
-      connection.close()
+  public close(): void {
+    for (const connection of this.pool) {
+      connection.close();
     }
   }
 
-  private onOpen (): void {
-    for (let callback of this.onOpenCallbacks) {
-      callback()
+  private onOpen(): void {
+    for (const callback of this.onOpenCallbacks) {
+      callback();
     }
   }
 
-  private onMessage (message: string): void {
-    for (let callback of this.onMessageCallbacks) {
-      callback(message)
+  private onMessage(message: string): void {
+    for (const callback of this.onMessageCallbacks) {
+      callback(message);
     }
   }
 
-  private onClose (): void {
-    for (let callback of this.onCloseCallbacks) {
-      callback()
+  private onClose(): void {
+    for (const callback of this.onCloseCallbacks) {
+      callback();
     }
   }
 }
