@@ -1,20 +1,23 @@
 {
   "name": "webrtc-connection",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Provides a tool to create pool of WebRTC peer connections  using different types of signaling.",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
     "lint": "eslint --cache --ext .js,.jsx,.ts,.tsx src",
-    "prepare" : "npm run build",
-    "prepublishOnly" : "npm run lint",
-    "preversion" : "npm run lint"
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run lint",
+    "preversion": "npm run lint"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rnixik/webrtc-connection.git"
   },
-  "keywords": ["WebRTC", "Signaling"],
+  "keywords": [
+    "WebRTC",
+    "Signaling"
+  ],
   "author": "Roman Nix",
   "license": "MIT",
   "main": "lib/index.js",
