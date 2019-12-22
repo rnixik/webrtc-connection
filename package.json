@@ -1,6 +1,6 @@
 {
   "name": "webrtc-connection",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Provides a tool to create pool of WebRTC peer connections  using different types of signaling.",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
