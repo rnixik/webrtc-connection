@@ -4,6 +4,7 @@ export interface SignalingDataInterface {
   ice: RTCIceCandidate[];
 }
 
+// TODO: Split it into two interfaces
 export interface SignalingInterface {
   getId(): string;
   bindInitiateOfferCallback(callback: (offerId: string) => void): void;
