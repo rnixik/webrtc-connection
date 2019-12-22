@@ -12,7 +12,7 @@ export class WebRtcConnection {
   private signaling: SignalingInterface;
   private readonly rtcConfig?: object;
   private onOpenCallbacks: (() => void)[] = [];
-  private onMessageCallbacks: ((message: string) => void)[] = [];
+  private onMessageCallbacks: ((message: string, peerId: string) => void)[] = [];
   private onCloseCallbacks: (() => void)[] = [];
   private readonly id: string;
 
@@ -83,7 +83,7 @@ export class WebRtcConnection {
     this.onOpenCallbacks.push(callback);
   }
 
-  public addOnMessageCallback(callback: (message: string) => void): void {
+  public addOnMessageCallback(callback: (message: string, peerId: string) => void): void {
     this.onMessageCallbacks.push(callback);
   }
 
@@ -165,7 +165,7 @@ export class WebRtcConnection {
     };
     channel.onmessage = (e): void => {
       for (const callback of this.onMessageCallbacks) {
-        callback(e.data);
+        callback(e.data, id);
       }
     };
   }

@@ -3,9 +3,9 @@ import { WebRtcConnection } from './WebRtcConnection';
 
 export class WebRtcConnectionsPool {
   private pool: WebRtcConnection[] = [];
-  private onOpenCallbacks: CallableFunction[] = [];
-  private onMessageCallbacks: CallableFunction[] = [];
-  private onCloseCallbacks: CallableFunction[] = [];
+  private onOpenCallbacks: (() => void)[] = [];
+  private onMessageCallbacks: ((message: string, peerId: string) => void)[] = [];
+  private onCloseCallbacks: (() => void)[] = [];
 
   public connect(signaling: SignalingInterface): WebRtcConnection {
     const connection = new WebRtcConnection(signaling);
@@ -13,8 +13,8 @@ export class WebRtcConnectionsPool {
     connection.addOnOpenCallback(() => {
       this.onOpen();
     });
-    connection.addOnMessageCallback((message: string) => {
-      this.onMessage(message);
+    connection.addOnMessageCallback((message: string, peerId: string) => {
+      this.onMessage(message, peerId);
     });
     connection.addOnCloseCallback(() => {
       this.onClose();
@@ -29,7 +29,7 @@ export class WebRtcConnectionsPool {
     this.onOpenCallbacks.push(callback);
   }
 
-  public addOnMessageCallback(callback: (message: string) => void): void {
+  public addOnMessageCallback(callback: (message: string, peerId: string) => void): void {
     this.onMessageCallbacks.push(callback);
   }
 
@@ -55,9 +55,9 @@ export class WebRtcConnectionsPool {
     }
   }
 
-  private onMessage(message: string): void {
+  private onMessage(message: string, peerId: string): void {
     for (const callback of this.onMessageCallbacks) {
-      callback(message);
+      callback(message, peerId);
     }
   }
 

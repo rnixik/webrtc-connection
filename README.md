@@ -61,14 +61,14 @@ connectionsPool.sendMessage('Hi!');
 
 ### Send to all connected peers
 ```javascript
-const connectionsPool = new WebRtcConnectionsPool()
+const connectionsPool = new WebRtcConnectionsPool();
 connectionsPool.sendMessage('Hi!')
 ```
 
 ### Receive messages
 ```javascript
-const connectionsPool = new WebRtcConnectionsPool()
-connectionsPool.addOnMessageCallback((message) => {
+const connectionsPool = new WebRtcConnectionsPool();
+connectionsPool.addOnMessageCallback((message, peerId) => {
     // console.log(message)
 })
 ```
