@@ -57,11 +57,7 @@ export class WebRtcConnection {
     for (const peer in this.peers) {
       const channel = this.peers[peer].channel;
       if (channel !== undefined) {
-        try {
-          channel.send(message);
-        } catch (err) {
-          // Nothing to do
-        }
+        channel.send(message);
       }
     }
   }
