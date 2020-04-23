@@ -1,18 +1,5 @@
 import { SignalingInterface, SignalingDataInterface } from './SignalingInterface';
-
-class FramedMessage {
-  public id: string;
-  public framesNumber: number;
-  public currentFrame: number;
-  public data: string;
-
-  constructor (id: string, framesNumber: number, currentFrame: number, data: string) {
-    this.id = id;
-    this.framesNumber = framesNumber;
-    this.currentFrame = currentFrame;
-    this.data = data;
-  }
-}
+import { MessageFramer } from './MessageFramer';
 
 export class WebRtcConnection {
   private peers: {
@@ -30,12 +17,10 @@ export class WebRtcConnection {
   private onCloseCallbacks: (() => void)[] = [];
   private readonly id: string;
   private readonly useFraming: boolean = false;
-  private framedPool: Map<string, FramedMessage[]> = new Map();
-  private framedTimeouts: Map<string, number> = new Map();
-  private framesTimeoutValue = 5000;
   private maxMessageSizeForFrame: number = 15 * 1024;
+  private messageFramer = new MessageFramer();
 
-  constructor(signaling: SignalingInterface, iceServers: object[] = [], useFraming: boolean = false) {
+  constructor(signaling: SignalingInterface, iceServers: object[] = [], useFraming = false) {
     this.signaling = signaling;
     this.signaling.bindInitiateOfferCallback(offerId => {
       this.initiateOffer(offerId);
@@ -75,11 +60,13 @@ export class WebRtcConnection {
   }
 
   public sendMessage(message: string): void {
-    this.splitMessageToFrames(message).then((preparedMessage) => {
+    this.splitMessageToFrames(message).then((preparedMessages) => {
       for (const peer in this.peers) {
         const channel = this.peers[peer].channel;
         if (channel !== undefined) {
-          channel.send(preparedMessage);
+          for (const message of preparedMessages) {
+            channel.send(message);
+          }
         }
       }
     });
@@ -244,24 +231,8 @@ export class WebRtcConnection {
     if (!this.useFraming) {
       return [message];
     }
-    const framedMessages: string[] = [];
-    const id = '' + Math.floor(Math.random() * 100000000)
-    const messageBlob = new Blob([message]);
-    const messageSize = messageBlob.size;
-    const framesNumber = Math.ceil(messageSize / this.maxMessageSizeForFrame);
-    const frameSize = Math.floor(messageSize / framesNumber)
-    for (let currentFrame = 1; currentFrame <= framesNumber; currentFrame += 1) {
-      const frameData = messageBlob.slice((currentFrame - 1) * frameSize, frameSize)
-      const framedMessage = new FramedMessage(
-          id,
-          framesNumber,
-          currentFrame,
-          await frameData.text()
-      );
-      framedMessages.push(JSON.stringify(framedMessage));
-    }
 
-    return framedMessages;
+    return await this.messageFramer.splitMessageToFrames(message, this.maxMessageSizeForFrame)
   }
 
   private async prepareIncomingMessage(message: string): Promise<string | undefined> {
@@ -269,33 +240,6 @@ export class WebRtcConnection {
       return message;
     }
 
-    const framedMessage = (JSON.parse(message) as FramedMessage);
-
-    this.framedTimeouts.set(framedMessage.id, setTimeout(() => {
-      this.framedPool.delete(framedMessage.id)
-    }, this.framesTimeoutValue));
-
-    if (!this.framedPool.has(framedMessage.id)) {
-      this.framedPool.set(framedMessage.id, []);
-    }
-
-    const frames = this.framedPool.get(framedMessage.id);
-    if (frames) {
-      frames.push(framedMessage);
-      if (framedMessage.framesNumber === frames.length) {
-        const blobParts = [];
-        for (const framedMessage of frames) {
-          blobParts.push(framedMessage.data);
-        }
-
-        const blob = new Blob(blobParts);
-
-        return await blob.text()
-      }
-    }
-
-    // Awaiting other parts
-
-    return undefined;
+    return await this.messageFramer.prepareIncomingMessage(message);
   }
 }
