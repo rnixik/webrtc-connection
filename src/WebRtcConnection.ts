@@ -1,4 +1,5 @@
 import { SignalingInterface, SignalingDataInterface } from './SignalingInterface';
+import { MessageFramer } from './MessageFramer';
 
 export class WebRtcConnection {
   private peers: {
@@ -15,8 +16,11 @@ export class WebRtcConnection {
   private onMessageCallbacks: ((message: string, peerId: string) => void)[] = [];
   private onCloseCallbacks: (() => void)[] = [];
   private readonly id: string;
+  private readonly useFraming: boolean = false;
+  private maxMessageSizeForFrame: number = 15 * 1024;
+  private messageFramer = new MessageFramer();
 
-  constructor(signaling: SignalingInterface, iceServers: object[] = []) {
+  constructor(signaling: SignalingInterface, iceServers: object[] = [], useFraming = false) {
     this.signaling = signaling;
     this.signaling.bindInitiateOfferCallback(offerId => {
       this.initiateOffer(offerId);
@@ -24,6 +28,8 @@ export class WebRtcConnection {
     this.signaling.bindOnIncomingDataCallback((data: SignalingDataInterface) => {
       this.applyRemote(data);
     });
+
+    this.useFraming = useFraming;
 
     this.id = signaling.getId();
 
@@ -54,12 +60,16 @@ export class WebRtcConnection {
   }
 
   public sendMessage(message: string): void {
-    for (const peer in this.peers) {
-      const channel = this.peers[peer].channel;
-      if (channel !== undefined) {
-        channel.send(message);
+    this.splitMessageToFrames(message).then((preparedMessages) => {
+      for (const peer in this.peers) {
+        const channel = this.peers[peer].channel;
+        if (channel !== undefined) {
+          for (const message of preparedMessages) {
+            channel.send(message);
+          }
+        }
       }
-    }
+    });
   }
 
   public close(): void {
@@ -160,9 +170,15 @@ export class WebRtcConnection {
       // Nothing to do
     };
     channel.onmessage = (e): void => {
-      for (const callback of this.onMessageCallbacks) {
-        callback(e.data, id);
-      }
+      this.prepareIncomingMessage(e.data).then((message) => {
+        if (typeof message === 'undefined') {
+          return;
+        }
+
+        for (const callback of this.onMessageCallbacks) {
+          callback(message, id);
+        }
+      })
     };
   }
 
@@ -209,5 +225,21 @@ export class WebRtcConnection {
         this.bindChannelEvents(id, e.channel);
       };
     }
+  }
+
+  private async splitMessageToFrames(message: string): Promise<string[]> {
+    if (!this.useFraming) {
+      return [message];
+    }
+
+    return await this.messageFramer.splitMessageToFrames(message, this.maxMessageSizeForFrame)
+  }
+
+  private async prepareIncomingMessage(message: string): Promise<string | undefined> {
+    if (!this.useFraming) {
+      return message;
+    }
+
+    return await this.messageFramer.prepareIncomingMessage(message);
   }
 }
