@@ -6,9 +6,9 @@ export class WebRtcConnectionsPool {
   private onOpenCallbacks: (() => void)[] = [];
   private onMessageCallbacks: ((message: string, peerId: string) => void)[] = [];
   private onCloseCallbacks: (() => void)[] = [];
-  private useFraming = false;
+  private readonly useFraming: boolean;
 
-  constructor(useFraming = false) {
+  constructor(useFraming: boolean = false) {
     this.useFraming = useFraming;
   }
 
