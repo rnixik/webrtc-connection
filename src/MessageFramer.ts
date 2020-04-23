@@ -25,7 +25,13 @@ export class MessageFramer {
         const framesNumber = Math.ceil(messageSize / maxMessageSizeForFrame);
         const frameSize = Math.floor(messageSize / framesNumber)
         for (let currentFrame = 1; currentFrame <= framesNumber; currentFrame += 1) {
-            const frameData = messageBlob.slice((currentFrame - 1) * frameSize, frameSize)
+            const startPos = (currentFrame - 1) * frameSize;
+            let endPos = currentFrame * frameSize;
+            if (currentFrame === framesNumber) {
+                // Last frame to the end
+                endPos = messageSize;
+            }
+            const frameData = messageBlob.slice(startPos, endPos)
             const framedMessage = new FramedMessage(
                 id,
                 framesNumber,
