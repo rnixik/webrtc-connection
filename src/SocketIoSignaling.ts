@@ -71,4 +71,12 @@ export class SocketIoSignaling implements SignalingInterface {
       this.onWebRtcConnectionErrorCallback(id);
     }
   }
+
+  disconnect(): void {
+    if (!this.socket) {
+      return
+    }
+
+    this.socket.disconnect()
+  }
 }

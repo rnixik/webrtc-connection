@@ -65,7 +65,7 @@ export class WebRtcConnection {
     this.splitMessageToFrames(message).then((preparedMessages) => {
       for (const peer in this.peers) {
         const channel = this.peers[peer].channel;
-        if (channel !== undefined) {
+        if (channel !== undefined && channel.readyState === 'open') {
           for (const message of preparedMessages) {
             channel.send(message);
           }
@@ -83,6 +83,11 @@ export class WebRtcConnection {
       const connection = this.peers[peer].connection;
       if (connection !== undefined) {
         connection.close()
+      }
+      if (this.peers[peer].wasSuccess) {
+        for (const callback of this.onCloseCallbacks) {
+          callback();
+        }
       }
     }
   }
@@ -113,7 +118,7 @@ export class WebRtcConnection {
 
   private initConnection(pc: RTCPeerConnection, id: string): void {
     pc.onicecandidate = (event): void => {
-      if (!pc.localDescription) {
+      if (!pc.localDescription || !this.peers[id]) {
         return
       }
 

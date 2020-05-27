@@ -56,6 +56,14 @@ export class WebRtcConnectionsPool {
     }
   }
 
+  public closeConnection(connection: WebRtcConnection): void {
+    const index = this.pool.indexOf(connection, 0);
+    if (index > -1) {
+      this.pool.splice(index, 1);
+    }
+    connection.close();
+  }
+
   private onOpen(): void {
     for (const callback of this.onOpenCallbacks) {
       callback();
