@@ -78,11 +78,11 @@ export class WebRtcConnection {
     for (const peer in this.peers) {
       const channel = this.peers[peer].channel;
       if (channel !== undefined) {
-        try {
-          channel.close();
-        } catch (e) {
-          // Nothing to do
-        }
+        channel.close();
+      }
+      const connection = this.peers[peer].connection;
+      if (connection !== undefined) {
+        connection.close()
       }
     }
   }
