@@ -14,8 +14,8 @@ export class WebRtcConnectionsPool {
     this.channelName = channelName;
   }
 
-  public connect(signaling: SignalingInterface): WebRtcConnection {
-    const connection = new WebRtcConnection(signaling, [], this.useFraming, this.channelName);
+  public connect(signaling: SignalingInterface, iceServers: object[] = []): WebRtcConnection {
+    const connection = new WebRtcConnection(signaling, iceServers, this.useFraming, this.channelName);
 
     connection.addOnOpenCallback(() => {
       this.onOpen();
