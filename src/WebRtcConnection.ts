@@ -19,11 +19,13 @@ export class WebRtcConnection {
   private readonly useFraming: boolean = false;
   private maxMessageSizeForFrame: number = 15 * 1024;
   private messageFramer = new MessageFramer();
+  private channelName = 'some-channel';
 
-  constructor(signaling: SignalingInterface, iceServers: object[] = [], useFraming = false) {
+  constructor(signaling: SignalingInterface, iceServers: object[] = [], useFraming = false, channelName = 'some-channel') {
     this.signaling = signaling;
+    this.channelName = channelName;
     this.signaling.bindInitiateOfferCallback(offerId => {
-      this.initiateOffer(offerId);
+      this.initiateOffer(offerId, this.channelName);
     });
     this.signaling.bindOnIncomingDataCallback((data: SignalingDataInterface) => {
       this.applyRemote(data);

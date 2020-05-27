@@ -7,13 +7,15 @@ export class WebRtcConnectionsPool {
   private onMessageCallbacks: ((message: string, peerId: string) => void)[] = [];
   private onCloseCallbacks: (() => void)[] = [];
   private useFraming = false;
+  private channelName = 'some-channel';
 
-  constructor(useFraming = false) {
+  constructor(useFraming = false, channelName = 'some-channel') {
     this.useFraming = useFraming;
+    this.channelName = channelName;
   }
 
   public connect(signaling: SignalingInterface): WebRtcConnection {
-    const connection = new WebRtcConnection(signaling, [], this.useFraming);
+    const connection = new WebRtcConnection(signaling, [], this.useFraming, this.channelName);
 
     connection.addOnOpenCallback(() => {
       this.onOpen();

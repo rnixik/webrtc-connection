@@ -16,5 +16,7 @@
     "tsconfigRootDir": "."
   },
   "plugins": ["@typescript-eslint"],
-  "rules": {}
+  "rules": {
+    "@typescript-eslint/ban-ts-ignore": "off"
+  }
 }

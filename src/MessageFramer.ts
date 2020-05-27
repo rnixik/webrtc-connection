@@ -30,6 +30,7 @@ export class MessageFramer {
                 id,
                 framesNumber,
                 currentFrame,
+                // @ts-ignore
                 await frameData.text()
             );
             framedMessages.push(JSON.stringify(framedMessage));
@@ -60,6 +61,7 @@ export class MessageFramer {
 
                 const blob = new Blob(blobParts);
 
+                // @ts-ignore
                 return await blob.text()
             }
         }
